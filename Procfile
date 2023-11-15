@@ -1,1 +1,0 @@
-web: java -Dserver.port=$PORT -jar target/api-rest-0.0.1-SNAPSHOT.jar
