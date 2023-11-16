@@ -1,6 +1,7 @@
 package com.clients.demo.service;
 
 import com.clients.demo.model.dto.ClientDTO;
+import com.clients.demo.model.dto.ClientRoleDTO;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 
@@ -10,7 +11,9 @@ public interface ClientService {
 
     Single<List<ClientDTO>> getClients();
 
-    Single<ClientDTO> update(ClientDTO clientDTO);
+    Single<ClientDTO> updateClient(ClientDTO clientDTO);
+
+    Single<ClientDTO> updateRole(ClientRoleDTO clientRoleDTO);
 
     Single<ClientDTO> addClient(ClientDTO client);
 

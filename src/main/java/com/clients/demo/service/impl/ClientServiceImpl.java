@@ -1,11 +1,14 @@
 package com.clients.demo.service.impl;
 
+import com.clients.demo.model.dto.ClientRoleDTO;
+import com.clients.demo.model.entity.ClientRoleEntity;
 import com.clients.demo.model.repository.ClientRepository;
 import com.clients.demo.model.dto.ClientDTO;
 import com.clients.demo.model.entity.ClientEntity;
 import com.clients.demo.model.entity.ERole;
 import com.clients.demo.model.entity.RoleEntity;
-import com.clients.demo.model.repository.ClientRepositoryDemo;
+import com.clients.demo.model.repository.ClientRoleRepository;
+import com.clients.demo.model.repository.RoleRepository;
 import com.clients.demo.service.ClientService;
 import io.reactivex.Completable;
 import io.reactivex.Single;
@@ -27,7 +30,9 @@ public class ClientServiceImpl implements ClientService {
 
     private final ClientRepository clientRepository;
 
-    private final ClientRepositoryDemo clientRepositoryDemo;
+    private final ClientRoleRepository clientRoleRepository;
+
+    private final RoleRepository roleRepository;
 
     @Override
     public Single<List<ClientDTO>> getClients() {
@@ -51,7 +56,7 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public Single<ClientDTO> update(ClientDTO client) {
+    public Single<ClientDTO> updateClient(ClientDTO client) {
         return updateClientToRepository(client)
                 .map(this::toClientResponse);
     }
@@ -63,6 +68,28 @@ public class ClientServiceImpl implements ClientService {
                 singleSubscriber.onError(new EntityNotFoundException());
             else {
                 singleSubscriber.onSuccess(clientRepository.save(toClientUpdate(client, optionalClient.get())));
+            }
+        });
+    }
+
+    @Override
+    public Single<ClientDTO> updateRole(ClientRoleDTO role) {
+        return updateClientToRepository(role)
+                .map(this::toClientResponse);
+    }
+
+    private Single<ClientEntity> updateClientToRepository(ClientRoleDTO clientRoleDTO) {
+        return Single.create(singleSubscriber -> {
+            ClientRoleEntity clientRole = clientRoleRepository
+                    .findByClientIdAndRoleId(clientRoleDTO.getClientId(), clientRoleDTO.getRoleId());
+            if (clientRole == null)
+                singleSubscriber.onError(new EntityNotFoundException());
+            else {
+                RoleEntity roleEntity = roleRepository.save(RoleEntity.builder()
+                        .name(ERole.valueOf(clientRoleDTO.getNewRole()))
+                        .build());
+                clientRoleRepository.save(toClientRoleUpdate(clientRoleDTO, roleEntity.getId()));
+                singleSubscriber.onSuccess(clientRepository.findById(clientRole.getClientId()).get());
             }
         });
     }
@@ -129,6 +156,13 @@ public class ClientServiceImpl implements ClientService {
                 .username(clientRequest.getUsername())
                 .password(clientRequest.getPassword())
                 .roles(clientEntity.getRoles())
+                .build();
+    }
+
+    private ClientRoleEntity toClientRoleUpdate(ClientRoleDTO clientRoleDTO, Integer newRoleId) {
+        return ClientRoleEntity.builder()
+                .clientId(clientRoleDTO.getClientId())
+                .roleId(newRoleId)
                 .build();
     }
 
