@@ -16,6 +16,9 @@ import java.io.Serializable;
 public class ClientRoleEntity implements Serializable {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
     @Column(name = "client_id")
     private Integer clientId;
 

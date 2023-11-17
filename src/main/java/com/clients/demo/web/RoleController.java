@@ -22,6 +22,17 @@ public class RoleController {
 
     private final RoleService roleService;
 
+    @PostMapping(
+            value = "/role",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public Single<ResponseEntity<ClientDTO>> create(@RequestBody ClientRoleDTO clientRoleDTO) {
+        return roleService.add(clientRoleDTO)
+                .subscribeOn(Schedulers.io())
+                .map(clientSaved -> new ResponseEntity<>(clientSaved, HttpStatus.CREATED));
+    }
+
     @PutMapping(
             value = "/role",
             consumes = MediaType.APPLICATION_JSON_VALUE,

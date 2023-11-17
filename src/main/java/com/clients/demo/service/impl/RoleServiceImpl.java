@@ -34,6 +34,30 @@ public class RoleServiceImpl implements RoleService {
 
     private final RoleRepository roleRepository;
 
+    @Transactional
+    @Override
+    public Single<ClientDTO> add(ClientRoleDTO clientRoleDTO) {
+        return saveClientRoleToRepository(clientRoleDTO)
+                .map(this::toClientResponse);
+    }
+
+    //TODO: Check
+    private Single<ClientEntity> saveClientRoleToRepository(ClientRoleDTO clientRoleDTO) {
+        return Single.create(singleSubscriber -> {
+            Optional<ClientEntity> optionalAuthor = clientRepository.findById(clientRoleDTO.getClientId());
+            if (!optionalAuthor.isPresent())
+                singleSubscriber.onError(new EntityNotFoundException());
+            else {
+                RoleEntity roleEntity = roleRepository.save(RoleEntity.builder()
+                        .name(ERole.valueOf(clientRoleDTO.getNewRole()))
+                        .build());
+                clientRoleRepository.save(toClientRoleUpdate(
+                        ClientRoleEntity.builder().build(), clientRoleDTO, roleEntity.getId()));
+                singleSubscriber.onSuccess(clientRepository.findById(clientRoleDTO.getClientId()).get());
+            }
+        });
+    }
+
     @Override
     public Single<List<RoleDTO>> getRoles() {
         //return clientRepositoryDemo.findAll().toList().map(this::toClientResponseList);
@@ -97,14 +121,16 @@ public class RoleServiceImpl implements RoleService {
                 RoleEntity roleEntity = roleRepository.save(RoleEntity.builder()
                         .name(ERole.valueOf(clientRoleDTO.getNewRole()))
                         .build());
-                clientRoleRepository.save(toClientRoleUpdate(clientRoleDTO, roleEntity.getId()));
+                clientRoleRepository.save(toClientRoleUpdate(clientRole, clientRoleDTO, roleEntity.getId()));
                 singleSubscriber.onSuccess(clientRepository.findById(clientRole.getClientId()).get());
             }
         });
     }
 
-    private ClientRoleEntity toClientRoleUpdate(ClientRoleDTO clientRoleDTO, Integer newRoleId) {
+    private ClientRoleEntity toClientRoleUpdate(
+            ClientRoleEntity clientRoleEntity, ClientRoleDTO clientRoleDTO, Integer newRoleId) {
         return ClientRoleEntity.builder()
+                .id(clientRoleEntity.getId())
                 .clientId(clientRoleDTO.getClientId())
                 .roleId(newRoleId)
                 .build();

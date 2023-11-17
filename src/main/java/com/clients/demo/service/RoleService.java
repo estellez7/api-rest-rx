@@ -10,6 +10,8 @@ import java.util.List;
 
 public interface RoleService {
 
+    Single<ClientDTO> add(ClientRoleDTO clientRoleDTO);
+
     Single<ClientDTO> updateRole(ClientRoleDTO clientRoleDTO);
 
     Completable delete(Integer id);
