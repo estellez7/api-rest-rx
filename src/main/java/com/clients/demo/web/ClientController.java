@@ -1,7 +1,6 @@
 package com.clients.demo.web;
 
 import com.clients.demo.model.dto.ClientDTO;
-import com.clients.demo.model.dto.ClientRoleDTO;
 import com.clients.demo.service.ClientService;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
@@ -27,7 +26,7 @@ public class ClientController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public Single<ResponseEntity<ClientDTO>> create(@RequestBody ClientDTO clientDto) {
-        return clientService.addClient(clientDto)
+        return clientService.add(clientDto)
                 .subscribeOn(Schedulers.io())
                 .map(clientSaved -> new ResponseEntity<>(clientSaved, HttpStatus.CREATED));
     }
@@ -37,19 +36,8 @@ public class ClientController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public Single<ResponseEntity<ClientDTO>> updateClient(@RequestBody ClientDTO clientDto) {
-        return clientService.updateClient(clientDto)
-                .subscribeOn(Schedulers.io())
-                .map(clientUpdated -> new ResponseEntity<>(clientUpdated, HttpStatus.CREATED));
-    }
-
-    @PutMapping(
-            value = "/role",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    public Single<ResponseEntity<ClientDTO>> updateRole(@RequestBody ClientRoleDTO clientRoleDTO) {
-        return clientService.updateRole(clientRoleDTO)
+    public Single<ResponseEntity<ClientDTO>> update(@RequestBody ClientDTO clientDto) {
+        return clientService.update(clientDto)
                 .subscribeOn(Schedulers.io())
                 .map(clientUpdated -> new ResponseEntity<>(clientUpdated, HttpStatus.CREATED));
     }
