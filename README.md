@@ -1,1 +1,1 @@
-# api-rest-rx
+# api-rest-rx-client
